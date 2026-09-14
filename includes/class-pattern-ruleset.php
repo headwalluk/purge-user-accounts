@@ -202,7 +202,7 @@ class Pattern_Ruleset {
 		$candidate = self::DELIMITER . $pattern_source . self::DELIMITER . 'i';
 
 		// Suppress the compilation warning; the failure is reported by the caller.
-		set_error_handler( static fn() => true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.prevent_path_disclosure_set_error_handler, WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_error_handler -- Scoped to a single preg_match probe and restored immediately.
+		set_error_handler( static fn() => true ); // phpcs:ignore WordPress.PHP.DevelopmentFunctions.error_log_set_error_handler, WordPress.PHP.DiscouragedPHPFunctions.runtime_configuration_set_error_handler -- Scoped to a single preg_match probe and restored immediately.
 		$is_valid = ( false !== preg_match( $candidate, 'probe' ) );
 		restore_error_handler();
 

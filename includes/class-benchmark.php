@@ -141,7 +141,7 @@ class Benchmark {
 
 			$matched = empty( $strategy['params'] )
 				? $wpdb->get_var( $strategy['sql'] ) // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Static SQL built from our own table names.
-				: $wpdb->get_var( $wpdb->prepare( $strategy['sql'], $strategy['params'] ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared -- Prepared with bound values.
+				: $wpdb->get_var( $wpdb->prepare( $strategy['sql'], $strategy['params'] ) ); // phpcs:ignore WordPress.DB.PreparedSQL.NotPrepared, WordPress.DB.PreparedSQLPlaceholders.UnfinishedPrepare -- Prepared with bound values.
 
 			$query_ms = ( microtime( true ) - $query_start ) * 1000;
 
