@@ -51,6 +51,9 @@
 # Too many dots in a dotcom, e.g. abc@foo.bar.com
 # ^[0-9]+,[^,]+,[^@]+@([^\.@]{3,}\.){2,}com$
 
+# Generated subdomains of one wedding-themed domain, e.g. foo@s1rx1.tobu-wedding.com
+@\w+\.tobu-wedding\.com$
+
 # Reference to a www site in their login
 # ^[0-9]+,"?www\.
 ^[0-9]+,"www\.
@@ -71,7 +74,7 @@
 \b(ubalbinki|grumm|baupo)\.pl$
 \bmailtech\.ro$
 \b(anonmails|koiot)\.de$
-\bcandy96\.fun$
+\b(candy96|gvozdvkedah)\.fun$
 \bmailmenot\.io$
 \beloymail\.top$
 
@@ -128,6 +131,18 @@ xyz\.shop$
 ,[^,@]{1,2}@(icloud|me|mac)\.com$
 ,[^,@]{1,3}@yahoo\.[a-z.]{2,}$
 
+#! default-off
+#
+# OFF BY DEFAULT until it has been measured on more than one site.
+#
+# One- or two-character local part at Outlook or Hotmail, e.g. bb@hotmail.com.
+#
+# Microsoft is left out of the provider-minimum rule above because real people
+# hold 3- and 4-character addresses there. At one or two characters the only
+# hit on one WooCommerce shop was an imported account with no orders and no
+# activity - a single data point, not a corpus test.
+,[^,@]{1,2}@(outlook|hotmail)\.(com|co\.uk|com\.au)$
+
 # Carrier SMS-to-email gateways.
 #
 # An address like 9176096858@tmomail.net delivers a text message to a US mobile
@@ -155,6 +170,7 @@ xyz\.shop$
 @msg\.fi\.google\.com$
 @pcs\.rogers\.com$
 @txt\.bell\.ca$
+@txt\.bellmobility\.ca$
 @msg\.telus\.com$
 @fido\.ca$
 @txt\.freedommobile\.ca$
