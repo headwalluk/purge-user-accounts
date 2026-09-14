@@ -203,7 +203,7 @@ class Admin_Page {
 	 * @return string
 	 */
 	protected function get_current_tab(): string {
-		$known_tabs = array( TAB_BUILD, TAB_RESULTS, TAB_HISTORY, TAB_SETTINGS );
+		$known_tabs = array( TAB_BUILD, TAB_RESULTS, TAB_HISTORY, TAB_SETTINGS, TAB_HELP );
 
 		// phpcs:ignore WordPress.Security.NonceVerification.Recommended -- Read-only tab selection; every state change is nonce-checked separately.
 		$requested = isset( $_GET['tab'] ) ? sanitize_key( wp_unslash( $_GET['tab'] ) ) : TAB_BUILD;
@@ -242,6 +242,10 @@ class Admin_Page {
 				$this->render_template( 'tab-settings.php' );
 				break;
 
+			case TAB_HELP:
+				$this->render_template( 'tab-help.php' );
+				break;
+
 			default:
 				$this->render_template( 'tab-build.php' );
 				break;
@@ -262,6 +266,7 @@ class Admin_Page {
 			TAB_RESULTS  => __( 'Results', 'purge-user-accounts' ),
 			TAB_HISTORY  => __( 'History', 'purge-user-accounts' ),
 			TAB_SETTINGS => __( 'Settings', 'purge-user-accounts' ),
+			TAB_HELP     => __( 'Help', 'purge-user-accounts' ),
 		);
 
 		echo '<nav class="nav-tab-wrapper hwpua-tabs">';

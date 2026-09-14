@@ -29,6 +29,9 @@ const TAB_HISTORY  = 'history';
 const TAB_SETTINGS = 'settings';
 const TAB_HELP     = 'help';
 
+/** Published documentation, linked from the Help tab. */
+const DOCS_URL = 'https://github.com/headwalluk/purge-user-accounts/blob/main/docs/';
+
 // ============================================================================
 // Database tables - unprefixed; Schema::table() adds $wpdb->prefix
 // ============================================================================
