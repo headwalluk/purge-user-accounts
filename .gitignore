@@ -1,0 +1,79 @@
+# WordPress Plugin .gitignore
+
+# Development notes — deliberately excluded.
+#
+# These reference real client sites, real user data and real corpus findings
+# from the Headwall fleet. None of that should ever enter a public git history.
+/dev-notes/
+
+# Dependencies
+/vendor/
+/node_modules/
+
+# IDE & Editor Files
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+*.code-workspace
+
+# OS Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+*~
+
+# Build & Compiled Files
+/build/
+/dist/
+*.min.js
+*.min.css
+*.map
+
+# Logs
+*.log
+npm-debug.log*
+error_log
+
+# Environment & Config
+.env
+.env.local
+.env.*.local
+wp-config-local.php
+
+# Sample, test & corpus data
+/sample-data/
+/corpus/
+
+# CSV exports produced during testing
+*.csv
+
+# Temporary Files
+*.tmp
+*.temp
+*.swp
+*.swo
+*.bak
+*.cache
+
+# PHPUnit
+/tmp/
+/tests/tmp/
+.phpunit.result.cache
+
+# Composer
+composer.lock
+composer.phar
+
+# NPM
+package-lock.json
+yarn.lock
+
+# WordPress
+.htaccess
+*.zip
+*.tar.gz

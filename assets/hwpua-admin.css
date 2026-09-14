@@ -1,0 +1,127 @@
+/* Purge User Accounts - admin styles. Plain CSS; there is no build step. */
+
+.hwpua-lede { max-width: 46rem; font-size: 14px; }
+.hwpua-muted { color: #646970; }
+.hwpua-warn { color: #8a4600; }
+.hwpua-num { text-align: right; font-variant-numeric: tabular-nums; }
+
+.hwpua-panel {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left-width: 4px;
+	padding: 12px 16px;
+	margin: 16px 0;
+	max-width: 60rem;
+}
+.hwpua-panel-info { border-left-color: #72aee6; }
+
+.hwpua-group {
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	padding: 8px 16px 16px;
+	margin: 16px 0;
+	max-width: 60rem;
+}
+.hwpua-group legend { font-weight: 600; padding: 0 6px; }
+.hwpua-group-disabled { opacity: .7; }
+
+.hwpua-filter { padding: 8px 0; border-top: 1px solid #f0f0f1; }
+.hwpua-filter:first-of-type { border-top: 0; }
+.hwpua-filter-disabled label { color: #646970; }
+.hwpua-filter > label { font-weight: 600; }
+
+.hwpua-filter-options {
+	margin: 6px 0 0 26px;
+	display: none;
+	font-size: 13px;
+}
+.hwpua-filter.is-on .hwpua-filter-options { display: block; }
+.hwpua-arg { display: inline-block; margin-right: 14px; }
+.hwpua-inline { margin-right: 12px; white-space: nowrap; }
+.hwpua-danger-opt { color: #8a4600; }
+
+.hwpua-coverage { margin: 8px 0; }
+.hwpua-coverage th { text-align: left; padding-right: 16px; font-weight: 400; color: #646970; }
+.hwpua-coverage td { font-variant-numeric: tabular-nums; }
+
+.hwpua-warnings {
+	background: #fcf9e8;
+	border: 1px solid #dba617;
+	border-left-width: 4px;
+	padding: 10px 16px;
+	margin: 16px 0;
+	max-width: 60rem;
+}
+
+.hwpua-actions { margin-top: 16px; }
+.hwpua-estimate-result { margin-left: 12px; font-weight: 600; }
+
+.hwpua-progress { margin: 16px 0; max-width: 60rem; }
+.hwpua-progress-bar {
+	height: 20px;
+	background: #f0f0f1;
+	border-radius: 3px;
+	overflow: hidden;
+}
+.hwpua-progress-bar span {
+	display: block;
+	height: 100%;
+	width: 0;
+	background: #2271b1;
+	transition: width .25s ease;
+}
+
+.hwpua-result-summary h2 { margin-top: 0; }
+.hwpua-criteria { font-family: Consolas, Monaco, monospace; font-size: 12px; color: #3c434a; }
+.hwpua-criteria-cell { font-size: 12px; color: #646970; max-width: 28rem; }
+
+.hwpua-badge {
+	display: inline-block;
+	padding: 1px 7px;
+	border-radius: 9px;
+	font-size: 11px;
+	background: #f0f0f1;
+	color: #50575e;
+}
+.hwpua-badge-warn { background: #fcf0e4; color: #8a4600; }
+.hwpua-badge-never { background: #f6e7e7; color: #8a2424; }
+
+.hwpua-rules code { font-size: 11px; word-break: break-all; }
+.hwpua-rule-toggle { width: 32px; }
+
+/* Action ladder and confirmation */
+.hwpua-ladder { margin: 0; padding: 0; list-style: none; }
+.hwpua-rung {
+	padding: 8px 0;
+	border-top: 1px solid #f0f0f1;
+}
+.hwpua-rung:first-child { border-top: 0; }
+.hwpua-rung p { margin: 2px 0 0 26px; font-size: 12px; }
+.hwpua-rung-danger strong { color: #8a2424; }
+.hwpua-rung .hwpua-badge { margin-left: 8px; vertical-align: 2px; }
+
+.hwpua-action-args { margin: 12px 0 12px 26px; }
+.hwpua-action-args p { margin: 0 0 6px; }
+
+.hwpua-preflight {
+	margin: 16px 0;
+	padding: 12px 16px;
+	background: #fff;
+	border: 1px solid #c3c4c7;
+	border-left: 4px solid #2271b1;
+}
+.hwpua-checks { margin: 8px 0; padding: 0; list-style: none; }
+.hwpua-check { padding: 3px 0 3px 22px; position: relative; }
+.hwpua-check::before { position: absolute; left: 0; font-weight: 700; }
+.hwpua-check-ok::before    { content: "\2713"; color: #007017; }
+.hwpua-check-warn::before  { content: "\26A0"; color: #8a4600; }
+.hwpua-check-block::before { content: "\2715"; color: #8a2424; }
+.hwpua-check-warn  { color: #8a4600; }
+.hwpua-check-block { color: #8a2424; font-weight: 600; }
+
+.hwpua-offramp {
+	margin: 12px 0;
+	padding: 10px 12px;
+	background: #f0f6fc;
+	border-left: 4px solid #72aee6;
+}

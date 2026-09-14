@@ -1,0 +1,80 @@
+<?xml version="1.0"?>
+<ruleset name="Purge User Accounts Standards">
+	<description>WordPress Coding Standards for the Purge User Accounts plugin</description>
+
+	<file>.</file>
+
+	<!-- Exclude patterns -->
+	<exclude-pattern>*/vendor/*</exclude-pattern>
+	<exclude-pattern>*/node_modules/*</exclude-pattern>
+	<exclude-pattern>*/assets/*</exclude-pattern>
+	<exclude-pattern>*/.git/*</exclude-pattern>
+	<exclude-pattern>*/dev-notes/*</exclude-pattern>
+
+	<!-- Arguments -->
+	<arg value="sp"/>
+	<arg name="basepath" value="."/>
+	<arg name="colors"/>
+	<arg name="extensions" value="php"/>
+	<arg name="parallel" value="8"/>
+
+	<!-- Rules -->
+	<rule ref="WordPress">
+		<exclude name="Generic.Arrays.DisallowShortArraySyntax"/>
+	</rule>
+
+	<!--
+		This plugin's whole purpose is bulk set operations over wp_users. Direct
+		$wpdb queries against core tables are the design, not an oversight; see
+		dev-notes/03-query-engine.md. Every such query is prepared and every
+		table name is built from $wpdb->prefix.
+	-->
+	<rule ref="WordPress.DB.DirectDatabaseQuery">
+		<exclude name="WordPress.DB.DirectDatabaseQuery.DirectQuery"/>
+		<exclude name="WordPress.DB.DirectDatabaseQuery.NoCaching"/>
+		<!-- The plugin owns five custom tables; dbDelta and DROP TABLE are the job. -->
+		<exclude name="WordPress.DB.DirectDatabaseQuery.SchemaChange"/>
+	</rule>
+
+	<!--
+		One file per integration, matching the house pattern in
+		spam-shield/integrations/. An integration is a cohesive unit - its
+		filters are meaningless apart from it - and splitting five small filter
+		classes across six files per integration would obscure that. Revisit if
+		an integration file outgrows the ~800-line house tolerance.
+	-->
+	<rule ref="Universal.Files.SeparateFunctionsFromOO.Mixed">
+		<exclude-pattern>*/integrations/*</exclude-pattern>
+	</rule>
+	<rule ref="WordPress.Files.FileName.InvalidClassFileName">
+		<exclude-pattern>*/integrations/*</exclude-pattern>
+	</rule>
+	<rule ref="Universal.Files.SeparateFunctionsFromOO">
+		<exclude-pattern>*/integrations/*</exclude-pattern>
+	</rule>
+	<rule ref="Generic.Files.OneObjectStructurePerFile">
+		<exclude-pattern>*/integrations/*</exclude-pattern>
+	</rule>
+
+	<!--
+		Coverage_Report lives beside Last_Login_Source: it is that class's return
+		type and has no life of its own. Splitting it would scatter one idea.
+	-->
+	<rule ref="Generic.Files.OneObjectStructurePerFile">
+		<exclude-pattern>*/includes/class-last-login-source.php</exclude-pattern>
+	</rule>
+
+	<!-- Minimum supported versions -->
+	<config name="minimum_wp_version" value="6.8"/>
+
+	<!-- Prefixes -->
+	<rule ref="WordPress.NamingConventions.PrefixAllGlobals">
+		<properties>
+			<property name="prefixes" type="array">
+				<element value="hwpua"/>
+				<element value="purge_user_accounts"/>
+				<element value="Purge_User_Accounts"/>
+			</property>
+		</properties>
+	</rule>
+</ruleset>

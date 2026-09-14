@@ -1,0 +1,270 @@
+##
+# Bad signup rules - bundled defaults for Purge User Accounts.
+#
+# Each rule is a regular expression matched against ONE COMPOSED LINE per user:
+#
+#     ID,user_login,user_email
+#
+# The anchors depend entirely on that shape:
+#   ^[0-9]+,              targets the login field
+#   leading , + [^,]*$    targets the email field only
+#   bare $                end of line, i.e. the email
+#
+# Blank lines and lines starting with # are ignored. The comment block above a
+# rule becomes its description in the UI and in the "why did this match?"
+# column, so the reasoning is worth as much as the pattern.
+#
+# PROVENANCE. These were derived against a private corpus of roughly 203,000
+# accounts across 248 sites. That evidence does not automatically transfer to
+# your site. They are a strong starting point, not a guarantee - review the
+# matches before acting on them.
+#
+# Site names and individual addresses have been removed from the reasoning
+# below; the technical substance is unchanged.
+##
+
+# zzz.zzz
+^[0-9]+,[z]{3,}\.[z]{3,}
+
+# No email address
+,$
+
+# Too many dots.
+#
+# Revised 13 September 2026. The previous form required a non-empty segment
+# before the @ - ([^.@]+\.){5,}[^.@]+@ - which made it match NOTHING across six
+# fleet sites and ~140,000 accounts, because the Gmail dot-trick addresses it
+# was meant to catch all END with a dot.
+#
+# The fix has to make the final segment OPTIONAL, not absent. Requiring a
+# non-empty one misses exihur.avu.zi8.66.@ ; requiring an empty one misses
+# n.i.c.o.l.a.s@ . `[^.@]*@` covers both.
+#
+# Kept alongside the malformed-local-part rules below, which catch a superset
+# here but address a different thing. This one covers dot-abuse with VALID
+# syntax - n.i.c.o.l.a.s@gmail.com, no trailing dot - which has not appeared on
+# this fleet yet but plainly will.
+# ^[0-9]+,[^,]+,([^\.@]+\.){4,}[^\.@]+@gmail.com$
+^[0-9]+,[^,]+,\.?([^\.@]+\.){5,}[^\.@]*@[^,]+$
+# ^[0-9]+,[^,]+,([^\.@]+\.){4,}[^\.@]+@[^,]+$
+
+# Too many dots in a dotcom, e.g. abc@foo.bar.com
+# ^[0-9]+,[^,]+,[^@]+@([^\.@]{3,}\.){2,}com$
+
+# Reference to a www site in their login
+# ^[0-9]+,"?www\.
+^[0-9]+,"www\.
+
+# Known bad literal user names
+^[0-9]+,topchecker,
+
+# Blogspotters
+^[0-9]+,.*\.blogspot\.
+
+# Anything that's "email@...." is dodgy (or not)?
+# ^[0-9]+,.*email@[^,]+$
+
+# Known bad domains
+\b(welcometotijuana|test|fxdan|thrah|kranso|travel-e-store|bouyee|thrah|oueue|jsafes|wpstep|wpengine|wordpress|graniteloom)\.com$
+\b(wiltors)\.com$
+\b(thepiratebay|wordpress|elyquin)\.org$
+\b(ubalbinki|grumm|baupo)\.pl$
+\bmailtech\.ro$
+\b(anonmails|koiot)\.de$
+\bcandy96\.fun$
+\bmailmenot\.io$
+\beloymail\.top$
+
+# REF: https://www.bleepingcomputer.com/news/security/wp3xyz-malware-attacks-add-rogue-admins-to-5-000-plus-wordpress-sites/
+^[0-9]+,wpx_admin,
+
+# Dodgy Chinese bots
+,[0-9]+@qq\.com
+
+# Obviously fake email addresses
+,(wp-backups?|test|admin)[0-9\.]*@(test|gmail|icloud|outlook|yahoo).com
+
+# Misc
+^[0-9]+,porn,
+@seo-ul\.store$
+xyz\.shop$
+# No \b before tis one because we want "pay" will match things like ""skypaypay.xyz""
+(vexaluno|pay|wp3|leantechy|streamboost|linktek|bestvpsfor)\.xyz$
+
+# Malformed local part: leading dot, trailing dot, or consecutive dots.
+#
+# Invalid under RFC 5321 regardless of provider - a dot-atom cannot begin or
+# end with a dot, nor contain two in a row. These addresses were never
+# deliverable anywhere.
+#
+# Seen on the fleet as .2782@gmail.com, .8591@gmail.com, .9902@gmail.com.
+,\.[^,@]*@[^,]+$
+,[^,@]*\.@[^,]+$
+,[^,@]*\.\.[^,@]*@[^,]+$
+
+# Local part shorter than the provider's own minimum.
+#
+# These addresses cannot exist. Each provider enforces a minimum local-part
+# length at signup, so anything shorter was never a real mailbox:
+#
+#   Gmail / Googlemail  6 characters
+#   iCloud / me / mac   3 characters
+#   Yahoo               4 characters
+#
+# Deliberately NOT applied to Outlook, Hotmail, Live or MSN. Microsoft has
+# allowed very short addresses historically, and measurement bears that out:
+# on one 38,281-account site, all four 3-character live.co.uk addresses belong
+# to ACTIVE users, as do most of the 4-character hotmail ones. A blanket
+# "short local part" rule would have deleted them.
+#
+# CAVEAT, and the reason to combine this with behavioural criteria rather than
+# act on it alone: "cannot exist" is not the same as "bot". A fleet sweep of
+# ~203,000 accounts found 24 such addresses. Most are plainly junk - toto@,
+# tutu@, xxx@, FRE@, TESTE@, 1@icloud.com - but several are name-shaped
+# (wbeck@, jking@, mwood@, yohan@) and four had authored a post. Those may be
+# real people who mistyped their own address. They are unreachable either way,
+# since the mailbox does not exist, but they are not necessarily hostile.
+,[^,@]{1,5}@(gmail|googlemail)\.com$
+,[^,@]{1,2}@(icloud|me|mac)\.com$
+,[^,@]{1,3}@yahoo\.[a-z.]{2,}$
+
+# Carrier SMS-to-email gateways.
+#
+# An address like 9176096858@tmomail.net delivers a text message to a US mobile
+# number. Legitimate for alerts; essentially never how a real person registers
+# for an account.
+#
+# Corpus-tested 13 September 2026 on a 38,281-account UK clinical education
+# site: 354 hits, and NOT ONE had any course activity or login record. Zero
+# false positives. They arrived alongside randomly-capitalised usernames
+# (PLRFU, kVlPtaJpZXsalr) between July and October 2025.
+#
+# Extended 13 September 2026 after sweeping every all-digit local part on that
+# site by domain, which took the total to 432: Rogers, Bell, Telus, Fido,
+# Freedom Mobile, MetroPCS and Cellcom.
+#
+# THE DOMAIN IS THE SIGNAL, NOT THE LOCAL PART. The same sweep found 93 real
+# students whose university issues their student number as an address -
+# 31 at umail.ucc.ie, 15 at edgehill.ac.uk, 10 at qmu.ac.uk, and more across
+# .ac.uk, .edu.au and .ac.za. A rule matching "all-digit local part" would
+# delete every one of them.
+@(vtext|tmomail|vzwpix|mypixmessages|mymetropcs|cellcomsms)\.(com|net)$
+@(txt|mms)\.att\.net$
+@(messaging|pm)\.sprintpcs\.com$
+@email\.uscc\.net$
+@msg\.fi\.google\.com$
+@pcs\.rogers\.com$
+@txt\.bell\.ca$
+@msg\.telus\.com$
+@fido\.ca$
+@txt\.freedommobile\.ca$
+
+# Disposable / throwaway mail providers. Subdomain-tolerant — the
+# welcometotijuana hit arrived as @c.welcometotijuana.com.
+@([a-z0-9-]+\.)*(etramay|tempr|mailinator|guerrillamail|yopmail|sharklasers|dispostable|trashmail|getnada|throwawaymail|maildrop|mohmal|fakeinbox|temp-mail|tempmail|jerkoffmail|moakt|emailondeck|mintemail|welcometotijuana|10minutemail|1secmail)\.[a-z]+$
+
+#! default-off
+#
+# OFF BY DEFAULT. Corpus-tested 13 September 2026 against 97,889 live accounts
+# across four sites: every hit was a real, active person. On one LearnDash site
+# it matched 20 accounts, 18 of which had course activity - genuine students
+# whose university issues <student-number><initials>@ addresses.
+#
+# Enable it only alongside a domain allowlist covering your academic and health
+# domains, and read the matches before acting on them.
+#
+# Local part is a long digit run with a short letter tail: 0716519cf@, 9716442hb@
+#
+# The trailing [^,]*$ confines the match to the LAST field. Without it the rule
+# also fires on a user_login that happens to be an email address, which is how
+# real university accounts using <student-number><initials>@ addressing were
+# being reported daily. See docs: that shape still matches when the student's
+# own address is the one in the email field - use the domain allowlist.
+,[0-9]{6,}[a-z]{1,4}@[^,]*$
+
+#! default-off
+#
+# OFF BY DEFAULT. The claim below - that a consonant-only tail keeps real names
+# out - was falsified by corpus testing on 13 September 2026. Both accounts it
+# matched on a live site (subash1074nks@, mrauf1995dgk@) had over a thousand
+# course-activity records each. They are real people with real names.
+#
+# Name + digits + a random CONSONANT cluster: dball4494dwb@, danielgonzalez5719mnz3@
+# Consonants only in the tail is what keeps real names out.
+# [^,]*$ as above - match the email field, not an email-shaped login.
+,[a-z]{4,}[0-9]{3,5}[bcdfghjklmnpqrstvwxz]{3,4}[0-9]?@[^,]*$
+
+# Subdomained address on a cheap / disposable TLD.
+#
+# Every signup in one observed campaign arrived as
+# <random>.<domain>.<cheap-tld> - 3fb2.andreydildos.online, m0r.eloymail.top,
+# 27bf.livethebest.shop - and so does a whole disposable-mail ecosystem:
+# xudaze.wisecook.xyz, zepuse.socialmail.sbs, luzaxa.geemail.cc.
+#
+# The subdomain requirement is what makes this safe. A bare cheap TLD is NOT
+# enough on its own: wheninrome.rest is a restaurant using .rest as intended,
+# and castlefarm.xyz looks like a real smallholding. But a legitimate business
+# does not put its staff mail on a subdomain of a .click.
+#
+# Measured over 203,538 accounts on 248 fleet sites: 647 hits, 190+ distinct
+# domains, no false positives. Re-test with the corpus before widening.
+@([a-z0-9-]+\.){2,}(online|shop|top|xyz|fun|store|site|click|sbs|cyou|rest|icu|link|monster|buzz|life|live|website|space|fit|bond|lol|makeup|quest|beauty)$
+@([a-z0-9-]+\.){2,}(mom|cc|guru|pro|club|art|work|world|cfd|best|surf|beer|singles|pics|golf|support|cv|one|digital|center|today|christmas|tattoo|help|codes|cloud|info)$
+
+# Bare-domain insurance for the domains seen in that same campaign - the
+# subdomain rule above only fires while they keep prefixing one.
+\b(andreydildos|skywardhub|akukayaraya)\.online$
+\blivethebest\.shop$
+\byzoms\.com$
+
+##
+# 2026-08-27 - six bot signups on one site.
+#
+# Six bot signups that the rules above missed completely. Tested against a
+# fresh 203,072-account / 248-site corpus: 130 unique new detections across 15
+# sites, zero overlap with anything already matched, no false positives on a
+# read-through of every hit.
+##
+
+# mail.tm disposable mailboxes, fronted by aged domains bought off NameSilo.
+#
+# airsworld.net and 2200freefonts.com are indistinguishable in DNS - the same
+# A record 51.254.35.55, the same ns{1,2,3}.dnsowl.com, and the same MX:
+# in.mail.tm. Both were registered around 2000-2004 and re-registered late
+# 2025, which is what gets them past domain-age reputation checks.
+#
+# The MX is the durable signal, not the names. mail.tm publishes only ONE
+# active domain at a time through its API, so there is no list to import -
+# freesourcecodes.com was found by sweeping all 14,591 corpus domains for
+# in.mail.tm. Re-run that sweep to catch the next batch; do not expect these
+# three literals to stay current.
+@(airsworld\.net|2200freefonts\.com|freesourcecodes\.com)$
+
+# Registration bots that let the signup form generate the username, then keep
+# it: user<blob>, user_<blob>, wpuser_<blob>, wpnew_<blob>.
+#
+# 18 records, and every one is independently on a throwaway domain - the two
+# signals agree without being derived from each other. The estate has no
+# legitimate login of this shape; the closest real one is "user2021" at four
+# trailing characters, which the {6,} threshold clears comfortably.
+#
+# Anchored ^[0-9]+, so it matches the LOGIN field only. Unlike the local-part
+# rules above it needs no [^,]*$ guard, because the trailing comma already
+# stops it running into the email.
+^[0-9]+,(user|wpuser|wpnew)_?[a-z0-9]{6,},
+
+# Five-letter throwaway .com pool, seen on four unrelated sites.
+#
+# Almost all of these have NO MX record, so they could never have received a
+# registration mail; the remainder share a junk MX (mail.solpay.gg,
+# mail.wabblywabble.com).
+#
+# This is a LITERAL LIST on purpose. A generic "five random letters + .com"
+# pattern was tested and rejected - it also matches telia.com, naver.com,
+# inbox.com, pobox.com, mailo.com, walla.com and shell.com. "No MX" was
+# likewise rejected as a standalone rule: it sweeps up gmail typos, and
+# gmial.com alone is 11 real members who fat-fingered their own address.
+#
+# The pool rotates, so this list rots. Re-derive it from a corpus MX sweep
+# rather than extending it by hand.
+@(wuuvo|kzccv|dcctb|bheps|qiott|icznn|ezztt|ovout|jybra|evvgo|cwtaa|comsb|coswz|sdemo|desry|tmmbt|tcwlm|cazlp|vsooc|wwjmp|yevme|nezid)\.com$
