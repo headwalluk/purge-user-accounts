@@ -4,60 +4,83 @@
 ![PHP](https://img.shields.io/badge/PHP-8.2%2B-777BB4?logo=php&logoColor=white)
 ![WooCommerce](https://img.shields.io/badge/WooCommerce-optional-7F54B3?logo=woocommerce&logoColor=white)
 ![License](https://img.shields.io/badge/license-GPLv2%20or%20later-blue)
-![Status](https://img.shields.io/badge/status-pre--release-orange)
+![Status](https://img.shields.io/badge/status-1.0.0-2ea44f)
 
-Find, audit and remove junk user accounts on WordPress sites — at a scale where the
-usual tools give up.
+Find, audit and remove junk user accounts on WordPress sites — botnet signups, sleeper
+accounts and dormant subscribers — on sites carrying tens of thousands of users.
 
 Built by [Headwall Hosting](https://headwall-hosting.com) after years of clearing botnet
 signups off client sites by hand with SQL and WP-CLI.
 
-## The problem
+## What it does
 
-Automated signup abuse leaves WordPress sites carrying tens of thousands of dormant
-accounts: throwaway mailboxes, generated usernames, subscribers who have never logged in
-and never will. They bloat the database, poison the site's mailing reputation, and every
-one of them is a credential waiting to be stuffed.
+1. **Build a query** from criteria — roles, authored content, comments, WooCommerce
+   orders, registration date, login record, bad-signup email and username patterns.
+   Criteria combine with AND, and each can be used as *has* or *has none*.
+2. **Run it.** The matching user IDs are stored server-side, so paging, exporting and
+   acting all address the same fixed set. The results table says *why* each account
+   matched.
+3. **Export a CSV** before changing anything.
+4. **Act on the result** — force logout, revoke application passwords, strip or restore
+   roles, block or allow sign-in, scramble passwords, or delete — behind pre-flight checks
+   and, for the destructive actions, a typed confirmation.
 
-The built-in Users screen cannot help. It has no concept of "never logged in", no way to
-combine criteria, and its bulk actions collapse well before 100,000 rows.
+Builds and jobs run in chunks, driven by the browser or by WP-CLI. A paused or stopped job
+can be resumed from WP-CLI.
+Saved queries (presets) can be exported as JSON and run by name on other sites.
 
-## What this plugin does
+## Requirements
 
-1. **Build a query** by ticking criteria — roles, content, comments, purchases, login
-   recency, email reputation. Criteria combine, and combining them is the point: a
-   subscriber with no content, no orders and a throwaway address is a very different
-   proposition from a subscriber.
-2. **Run it** and get a total plus a paged, sortable table of who matched and *why*.
-3. **Export to CSV** with user metadata, before touching anything.
-4. **Act on the result** — strip roles, force logout, scramble passwords, or delete —
-   with the destructive options gated behind confirmation proportional to the damage.
+- WordPress 6.8 or later, PHP 8.2 or later
+- WooCommerce is optional; the purchase criterion is unavailable without it
+- Single-site installs only — the plugin refuses to run on multisite
+- Operators need the `delete_users` capability
 
-Results are held server-side, so paging, exporting and acting all address the same
-stable, auditable set rather than re-running a query that shifts underneath you.
+## Installation
+
+Download the zip from the
+[releases page](https://github.com/headwalluk/purge-user-accounts/releases) and upload it
+under **Plugins → Add New → Upload Plugin**, or:
+
+```bash
+wp plugin install purge-user-accounts-v1.0.0.zip --activate
+wp purge-users doctor
+```
+
+The screen is under **Tools → Purge User Accounts**.
 
 ## Documentation
 
-The `docs/` directory is the entry point for anyone picking this project up:
-
-- [docs/architecture.md](docs/architecture.md) — plugin structure, classes, conventions
-- [docs/integrations.md](docs/integrations.md) — the integration contract, and what ships
-- [docs/database.md](docs/database.md) — custom tables, schema, retention
-- [docs/filters.md](docs/filters.md) — every selection criterion and its exact semantics
-- [docs/actions.md](docs/actions.md) — what each bulk action does, and what it cannot undo
-- [docs/hooks.md](docs/hooks.md) — action/filter hook reference for developers
-- [docs/cli.md](docs/cli.md) — WP-CLI commands and preset usage
 - [docs/operators-guide.md](docs/operators-guide.md) — for site owners: how to use this safely
+- [docs/filters.md](docs/filters.md) — every selection criterion and its exact semantics
+- [docs/actions.md](docs/actions.md) — what each action changes, and what it cannot undo
+- [docs/cli.md](docs/cli.md) — WP-CLI commands and presets
+- [docs/architecture.md](docs/architecture.md) — plugin structure, runs, jobs and the stepper
+- [docs/integrations.md](docs/integrations.md) — the developer contract for adding criteria
+- [docs/hooks.md](docs/hooks.md) — hooks and constants
+- [docs/database.md](docs/database.md) — custom tables, stored data, uninstall
 
 ## Safety
 
 This plugin deletes people. Read [docs/operators-guide.md](docs/operators-guide.md) before
-running anything destructive on a site you care about — particularly the section on
-last-login data, which is the single most common source of false positives.
+running anything destructive — particularly the section on last-login data, which is the
+most common source of false positives.
 
-Administrators are excluded from selection by default. Every destructive action requires
-an export first. Nothing is deleted without an explicit, typed confirmation.
+- **Block sign-in is the reversible way to take accounts out of use.** Stripping roles does
+  not stop an account signing in, and scrambling a password does not stop anyone who can
+  read the mailbox.
+- **Guards are applied when the action runs**, chunk by chunk: your own account and the
+  last administrator are never touched, and accounts whose role can delete users are
+  skipped unless you opt in from WP-CLI. They can still appear in a result; they are
+  skipped, with the reason recorded.
+- **Strip roles, scramble passwords and delete require a CSV export of that result** taken
+  within the last six hours, and a result more than a day old must be rebuilt first.
+- **Scramble and delete require typing the match count.** Delete also requires a decision
+  about the accounts' content.
+- **No email is sent** when passwords are scrambled.
+- **Export files are deleted from the server after six hours.** The plugin keeps no copy of
+  who was in a result; the file you download is that record.
 
-## License
+## Licence
 
 Licensed under [GPLv2 or later](LICENSE).

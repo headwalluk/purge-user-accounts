@@ -3,7 +3,7 @@
  * Plugin Name:       Purge User Accounts
  * Plugin URI:        https://headwall-hosting.com/
  * Description:       Find, audit and remove junk user accounts at scale — botnet signups, sleeper accounts and dormant subscribers.
- * Version:           0.1.0
+ * Version:           1.0.0
  * Requires at least: 6.8
  * Requires PHP:      8.2
  * Author:            Paul Faulkner
@@ -18,7 +18,7 @@
 defined( 'ABSPATH' ) || die();
 
 const HWPUA_NAME    = 'purge-user-accounts';
-const HWPUA_VERSION = '0.1.0';
+const HWPUA_VERSION = '1.0.0';
 
 define( 'HWPUA_FILE', __FILE__ );
 define( 'HWPUA_DIR', plugin_dir_path( __FILE__ ) );
