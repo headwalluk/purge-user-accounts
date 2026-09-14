@@ -1,0 +1,43 @@
+# Builds the plugin zip from a version tag and publishes it as a GitHub release.
+name: Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check the plugin header matches the tag
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          HEADER_VERSION=$(sed -nE 's/^ \* Version:[[:space:]]+([^[:space:]]+).*/\1/p' purge-user-accounts.php)
+          if [ "${TAG_VERSION}" != "${HEADER_VERSION}" ]; then
+            echo "::error::Tag ${GITHUB_REF_NAME} does not match plugin header version ${HEADER_VERSION}"
+            exit 1
+          fi
+
+      - name: Extract release notes from the changelog
+        run: |
+          TAG_VERSION="${GITHUB_REF_NAME#v}"
+          awk -v RELEASE_VERSION="${TAG_VERSION}" '/^## \[/ { is_printing = index($0, "[" RELEASE_VERSION "]") > 0; next } is_printing' CHANGELOG.md > release-notes.md
+          if [ ! -s release-notes.md ]; then
+            echo "::error::CHANGELOG.md has no section for ${TAG_VERSION}"
+            exit 1
+          fi
+
+      # git archive honours export-ignore in .gitattributes.
+      - name: Build the zip
+        run: git archive --format=zip --prefix=purge-user-accounts/ --output="purge-user-accounts-${GITHUB_REF_NAME}.zip" "${GITHUB_REF_NAME}"
+
+      - name: Publish the release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release create "${GITHUB_REF_NAME}" "purge-user-accounts-${GITHUB_REF_NAME}.zip" --title "${GITHUB_REF_NAME}" --notes-file release-notes.md
