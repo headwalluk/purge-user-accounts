@@ -292,6 +292,12 @@ class Strip_Roles_Action extends Action {
 
 				$existing_roles = (array) $user_object->roles;
 
+				// A second strip would stash an empty list over the original roles.
+				if ( empty( $existing_roles ) ) {
+					$result->skip( $user_id, __( 'Has no roles to strip. Any roles saved by an earlier strip are kept.', 'purge-user-accounts' ) );
+					continue;
+				}
+
 				// Stashed BEFORE the change, or the reversal is impossible.
 				update_user_meta( $user_id, META_STASHED_CAPABILITIES, $existing_roles );
 				update_user_meta( $user_id, META_STASHED_AT, hwpua_now() );

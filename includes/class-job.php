@@ -227,7 +227,6 @@ class Job {
 
 		$this->update(
 			array(
-				'status'         => JOB_STATUS_RUNNING,
 				'cursor_user_id' => $new_cursor,
 				'processed'      => $counts['processed'] + $result->succeeded + count( $result->items ),
 				'succeeded'      => $counts['succeeded'] + $result->succeeded,

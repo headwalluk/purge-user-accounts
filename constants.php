@@ -56,6 +56,8 @@ const OPT_ENABLED_RULES     = 'hwpua_enabled_rules';
 const OPT_CUSTOM_RULES      = 'hwpua_custom_rules';
 const OPT_PRESETS           = 'hwpua_presets';
 const OPT_LAST_LOGIN_SOURCE = 'hwpua_last_login_source';
+const OPT_FIXTURE_CREATED   = 'hwpua_fixture_created';
+const OPT_FIXTURE_COHORTS   = 'hwpua_fixture_cohorts';
 
 // ============================================================================
 // User meta keys - prefix with META_
@@ -147,6 +149,9 @@ const DEF_RUN_RETENTION_DAYS = 30;
 
 /** Jobs and job items - the audit trail - are kept far longer. */
 const DEF_JOB_RETENTION_DAYS = 365;
+
+/** Abandoned runs - throwaway estimates - are pruned after this many seconds. */
+const DEF_ABANDONED_RUN_RETENTION_SECONDS = DAY_IN_SECONDS;
 
 /** Export files are purged from disk after this many seconds. */
 const DEF_EXPORT_RETENTION_SECONDS = 6 * HOUR_IN_SECONDS;

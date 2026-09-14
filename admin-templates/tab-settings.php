@@ -98,24 +98,28 @@ echo '</div>';
 // --- Bad-signup rules ------------------------------------------------------
 $hwpua_all_rules = Pattern_Ruleset::parse_all_for_display();
 $hwpua_disabled  = $hwpua_settings->get_array( OPT_DISABLED_RULES, array() );
+$hwpua_enabled   = $hwpua_settings->get_array( OPT_ENABLED_RULES, array() );
 
 printf( '<div class="hwpua-panel"><h2>%s</h2>', esc_html__( 'Bad-signup rules', 'purge-user-accounts' ) );
 
 printf(
 	'<p>%s</p>',
-	esc_html__( 'Untick a rule to stop it matching. These were derived against a private corpus of roughly 203,000 accounts across 248 sites — that evidence does not automatically transfer to your site, so review matches before acting on them.', 'purge-user-accounts' )
+	esc_html__( 'Ticked rules are active. Rules marked "off by default" matched real people in corpus testing and stay off until a site enables them. These were derived against a private corpus of roughly 203,000 accounts across 248 sites — that evidence does not automatically transfer to your site, so review matches before acting on them.', 'purge-user-accounts' )
 );
 
 echo '<table class="widefat striped hwpua-rules"><tbody>';
 
 foreach ( $hwpua_all_rules as $hwpua_rule ) {
-	$hwpua_is_enabled = ! in_array( $hwpua_rule['key'], $hwpua_disabled, true );
+	$hwpua_is_default_off = ! empty( $hwpua_rule['default_off'] );
+	$hwpua_is_enabled     = ! in_array( $hwpua_rule['key'], $hwpua_disabled, true )
+		&& ( ! $hwpua_is_default_off || in_array( $hwpua_rule['key'], $hwpua_enabled, true ) );
 
 	printf(
 		'<tr><td class="hwpua-rule-toggle"><input type="checkbox" name="hwpua_enabled_display" %s disabled></td>
-		 <td><strong>%s</strong><br><code class="hwpua-muted">%s</code></td></tr>',
+		 <td><strong>%s</strong> <span class="hwpua-muted">%s</span><br><code class="hwpua-muted">%s</code></td></tr>',
 		$hwpua_is_enabled ? 'checked' : '',
 		esc_html( $hwpua_rule['label'] ),
+		esc_html( $hwpua_is_default_off ? __( '(off by default)', 'purge-user-accounts' ) : '' ),
 		esc_html( $hwpua_rule['pattern'] )
 	);
 
@@ -125,7 +129,7 @@ foreach ( $hwpua_all_rules as $hwpua_rule ) {
 }
 
 echo '</tbody></table>';
-printf( '<p class="hwpua-muted">%s</p>', esc_html__( 'Per-rule toggling is wired but not yet editable here — it arrives with the rest of the settings UI.', 'purge-user-accounts' ) );
+printf( '<p class="hwpua-muted">%s</p>', esc_html__( 'Rules cannot be switched on or off from this screen yet. docs/filters.md explains how to do it with WP-CLI.', 'purge-user-accounts' ) );
 echo '</div>';
 
 // --- Storage ---------------------------------------------------------------

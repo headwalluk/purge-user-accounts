@@ -70,6 +70,20 @@ class Job_Runner {
 			);
 		}
 
+		// A stop recorded by another process is honoured before the next chunk.
+		if ( JOB_STATUS_CANCELLED === $job->get_status() ) {
+			$progress            = self::build_progress( $job, $run, true );
+			$progress['stopped'] = true;
+
+			return $progress;
+		}
+
+		// Status changes only here and in stop/resume, so a chunk finishing
+		// after a stop cannot overwrite it.
+		if ( JOB_STATUS_PENDING === $job->get_status() ) {
+			$job->update( array( 'status' => JOB_STATUS_RUNNING ) );
+		}
+
 		$chunk_size  = max( 10, $action->get_chunk_size() );
 		$items_table = Schema::table( TABLE_RUN_ITEMS );
 

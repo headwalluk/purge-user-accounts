@@ -90,7 +90,7 @@ printf(
 		<p id="hwpua-progress-text"></p>
 		<p class="hwpua-muted">%s</p>
 	</div>',
-	esc_html__( 'Safe to close this tab. Progress is saved and the query can be resumed from the History tab.', 'purge-user-accounts' )
+	esc_html__( 'Closing this tab stops the query. Run it again from here.', 'purge-user-accounts' )
 );
 
 echo '</form>';

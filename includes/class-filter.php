@@ -79,6 +79,20 @@ abstract class Filter {
 	}
 
 	/**
+	 * Why the arguments cannot express a usable criterion, or '' when they can.
+	 *
+	 * Unusable arguments match nobody, which `has_not` turns into everybody, so
+	 * Run_Builder refuses the criterion instead.
+	 *
+	 * @param array<string,mixed> $args Operator-supplied arguments.
+	 */
+	public function get_argument_error( array $args ): string {
+		unset( $args );
+
+		return '';
+	}
+
+	/**
 	 * Scratch bucket this filter needs materialised first, or '' for none.
 	 */
 	public function get_scratch_bucket(): string {

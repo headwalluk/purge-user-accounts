@@ -65,6 +65,85 @@ class Run_History {
 	}
 
 	/**
+	 * Delete runs and jobs that are past their retention period.
+	 *
+	 * Runs go after DEF_RUN_RETENTION_DAYS and abandoned estimates after
+	 * DEF_ABANDONED_RUN_RETENTION_SECONDS, except a run whose job is still
+	 * pending, running or stopped, which would otherwise become unresumable.
+	 * Jobs and their items go after DEF_JOB_RETENTION_DAYS.
+	 *
+	 * @return void
+	 */
+	public static function prune_expired(): void {
+		global $wpdb;
+
+		$runs_table      = Schema::table( TABLE_RUNS );
+		$run_items_table = Schema::table( TABLE_RUN_ITEMS );
+		$scratch_table   = Schema::table( TABLE_RUN_SCRATCH );
+		$jobs_table      = Schema::table( TABLE_JOBS );
+		$job_items_table = Schema::table( TABLE_JOB_ITEMS );
+
+		$run_cutoff       = gmdate( 'Y-m-d H:i:s', time() - ( DEF_RUN_RETENTION_DAYS * DAY_IN_SECONDS ) );
+		$abandoned_cutoff = gmdate( 'Y-m-d H:i:s', time() - DEF_ABANDONED_RUN_RETENTION_SECONDS );
+		$job_cutoff       = gmdate( 'Y-m-d H:i:s', time() - ( DEF_JOB_RETENTION_DAYS * DAY_IN_SECONDS ) );
+
+		// phpcs:disable WordPress.DB.PreparedSQL.InterpolatedNotPrepared -- Table names from our own constants.
+		$expired_run_ids = $wpdb->get_col(
+			$wpdb->prepare(
+				"SELECT r.run_id FROM {$runs_table} r
+				WHERE ( r.created_at < %s OR ( r.status = %s AND r.created_at < %s ) )
+				  AND NOT EXISTS (
+					SELECT 1 FROM {$jobs_table} j
+					WHERE j.run_id = r.run_id AND j.status IN ( %s, %s, %s )
+				  )",
+				$run_cutoff,
+				RUN_STATUS_ABANDONED,
+				$abandoned_cutoff,
+				JOB_STATUS_PENDING,
+				JOB_STATUS_RUNNING,
+				JOB_STATUS_CANCELLED
+			)
+		);
+
+		if ( '' !== $wpdb->last_error ) {
+			hwpua_log_error( sprintf( 'Expired runs could not be listed for pruning: %s', $wpdb->last_error ) );
+		}
+
+		$expired_job_ids = $wpdb->get_col(
+			$wpdb->prepare( "SELECT job_id FROM {$jobs_table} WHERE created_at < %s", $job_cutoff )
+		);
+
+		if ( '' !== $wpdb->last_error ) {
+			hwpua_log_error( sprintf( 'Expired jobs could not be listed for pruning: %s', $wpdb->last_error ) );
+		}
+		// phpcs:enable WordPress.DB.PreparedSQL.InterpolatedNotPrepared
+
+		// Items before their parent row, so a failure part-way leaves no orphans.
+		$deletions = array(
+			'run_id' => array(
+				'ids'    => array_map( 'absint', (array) $expired_run_ids ),
+				'tables' => array( $run_items_table, $scratch_table, $runs_table ),
+			),
+			'job_id' => array(
+				'ids'    => array_map( 'absint', (array) $expired_job_ids ),
+				'tables' => array( $job_items_table, $jobs_table ),
+			),
+		);
+
+		foreach ( $deletions as $id_column => $deletion ) {
+			foreach ( $deletion['ids'] as $expired_id ) {
+				foreach ( $deletion['tables'] as $table_name ) {
+					$deleted = $wpdb->delete( $table_name, array( $id_column => $expired_id ), array( '%d' ) );
+
+					if ( false === $deleted ) {
+						hwpua_log_error( sprintf( 'Could not prune %s %d from %s: %s', $id_column, $expired_id, $table_name, $wpdb->last_error ) );
+					}
+				}
+			}
+		}
+	}
+
+	/**
 	 * Match reasons for a run, largest group first.
 	 *
 	 * @param Run $run Run to summarise.

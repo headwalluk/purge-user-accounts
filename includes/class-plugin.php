@@ -28,6 +28,8 @@ class Plugin {
 	 * Register hooks, or explain why the plugin is inert.
 	 */
 	public function run(): void {
+		add_action( 'before_woocommerce_init', array( $this, 'declare_woocommerce_compatibility' ) );
+
 		if ( ! Environment::is_supported() ) {
 			add_action( 'admin_notices', array( $this, 'render_unsupported_notice' ) );
 			return;
@@ -59,6 +61,15 @@ class Plugin {
 
 		add_action( CRON_HOUSEKEEPING, array( $this, 'run_housekeeping' ) );
 		add_action( 'init', array( $this, 'schedule_housekeeping' ) );
+	}
+
+	/**
+	 * Declare compatibility with WooCommerce's HPOS order tables.
+	 */
+	public function declare_woocommerce_compatibility(): void {
+		if ( class_exists( \Automattic\WooCommerce\Utilities\FeaturesUtil::class ) ) {
+			\Automattic\WooCommerce\Utilities\FeaturesUtil::declare_compatibility( 'custom_order_tables', HWPUA_FILE, true );
+		}
 	}
 
 	/**
@@ -148,6 +159,7 @@ class Plugin {
 	 */
 	public function run_housekeeping(): void {
 		Export_Directory::purge_expired();
+		Run_History::prune_expired();
 	}
 
 	/**

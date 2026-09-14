@@ -37,3 +37,21 @@ function hwpua_log_error( string $message ): void {
 function hwpua_now(): string {
 	return gmdate( 'Y-m-d H:i:s' );
 }
+
+/**
+ * Resolve a `days_ago` or `date` argument to a UTC MySQL datetime, or '' when neither is usable.
+ *
+ * @param array<string,mixed> $args Operator-supplied criterion arguments.
+ */
+function hwpua_resolve_cutoff( array $args ): string {
+	$cutoff = '';
+
+	if ( isset( $args['days_ago'] ) && is_numeric( $args['days_ago'] ) ) {
+		$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( (int) $args['days_ago'] * DAY_IN_SECONDS ) );
+	} elseif ( isset( $args['date'] ) && is_string( $args['date'] ) ) {
+		$parsed = strtotime( $args['date'] . ' UTC' );
+		$cutoff = false === $parsed ? '' : gmdate( 'Y-m-d H:i:s', $parsed );
+	}
+
+	return $cutoff;
+}

@@ -60,6 +60,12 @@ class Run_Builder {
 
 			$sense = isset( $criterion['sense'] ) ? (string) $criterion['sense'] : SENSE_HAS_NOT;
 
+			// A filter without sense carries its direction in its arguments, so it
+			// is applied as written and never wrapped in NOT( ... ).
+			if ( ! $filter->supports_sense() ) {
+				$sense = SENSE_HAS;
+			}
+
 			if ( SENSE_HAS !== $sense && SENSE_HAS_NOT !== $sense ) {
 				throw new Run_Exception(
 					sprintf(
@@ -70,10 +76,24 @@ class Run_Builder {
 				);
 			}
 
+			$criterion_args = isset( $criterion['args'] ) && is_array( $criterion['args'] ) ? $criterion['args'] : array();
+			$argument_error = $filter->get_argument_error( $criterion_args );
+
+			if ( '' !== $argument_error ) {
+				throw new Run_Exception(
+					sprintf(
+						/* translators: 1: filter label, 2: what the operator must supply. */
+						esc_html__( 'The criterion "%1$s" is incomplete: %2$s', 'purge-user-accounts' ),
+						esc_html( $filter->get_label() ),
+						esc_html( $argument_error )
+					)
+				);
+			}
+
 			$normalised[] = array(
 				'id'    => $filter_id,
 				'sense' => $sense,
-				'args'  => isset( $criterion['args'] ) && is_array( $criterion['args'] ) ? $criterion['args'] : array(),
+				'args'  => $criterion_args,
 			);
 		}
 

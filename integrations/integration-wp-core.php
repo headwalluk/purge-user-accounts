@@ -36,6 +36,17 @@ class Wp_Core_Role_Filter extends Filter {
 	}
 
 	/**
+	 * At least one role must be named.
+	 *
+	 * @param array<string,mixed> $args Operator-supplied arguments.
+	 */
+	public function get_argument_error( array $args ): string {
+		$role_slugs = isset( $args['roles'] ) && is_array( $args['roles'] ) ? array_filter( array_map( 'sanitize_key', $args['roles'] ) ) : array();
+
+		return empty( $role_slugs ) ? __( 'tick at least one role.', 'purge-user-accounts' ) : '';
+	}
+
+	/**
 	 * Matches when the user holds any of the named roles.
 	 *
 	 * The quotes in the LIKE pattern matter: without them `subscriber` also
@@ -165,6 +176,20 @@ class Wp_Core_Content_Filter extends Filter {
 	 */
 	public function get_group(): string {
 		return 'content';
+	}
+
+	/**
+	 * At least one post type and one status must remain.
+	 *
+	 * @param array<string,mixed> $args Operator-supplied arguments.
+	 */
+	public function get_argument_error( array $args ): string {
+		$post_types    = isset( $args['post_types'] ) && is_array( $args['post_types'] ) ? $args['post_types'] : array( 'post', 'page' );
+		$post_statuses = isset( $args['post_statuses'] ) && is_array( $args['post_statuses'] ) ? $args['post_statuses'] : self::DEFAULT_STATUSES;
+		$post_types    = array_diff( array_filter( array_map( 'sanitize_key', $post_types ) ), array( 'revision' ) );
+		$post_statuses = array_filter( array_map( 'sanitize_key', $post_statuses ) );
+
+		return empty( $post_types ) || empty( $post_statuses ) ? __( 'choose at least one post type and one status.', 'purge-user-accounts' ) : '';
 	}
 
 	/**
@@ -337,6 +362,15 @@ class Wp_Core_Registered_Filter extends Filter {
 	}
 
 	/**
+	 * A usable cutoff is required.
+	 *
+	 * @param array<string,mixed> $args Operator-supplied arguments.
+	 */
+	public function get_argument_error( array $args ): string {
+		return '' === hwpua_resolve_cutoff( $args ) ? __( 'give a number of days or a date.', 'purge-user-accounts' ) : '';
+	}
+
+	/**
 	 * Matches on registration date, either side of a cutoff.
 	 *
 	 * @param array<string,mixed> $args   `direction` of before|after, and either
@@ -348,14 +382,7 @@ class Wp_Core_Registered_Filter extends Filter {
 		unset( $run_id );
 
 		$direction = isset( $args['direction'] ) && 'after' === $args['direction'] ? 'after' : 'before';
-		$cutoff    = '';
-
-		if ( isset( $args['days_ago'] ) && is_numeric( $args['days_ago'] ) ) {
-			$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( (int) $args['days_ago'] * DAY_IN_SECONDS ) );
-		} elseif ( isset( $args['date'] ) && is_string( $args['date'] ) ) {
-			$parsed = strtotime( $args['date'] . ' UTC' );
-			$cutoff = false === $parsed ? '' : gmdate( 'Y-m-d H:i:s', $parsed );
-		}
+		$cutoff    = hwpua_resolve_cutoff( $args );
 
 		if ( '' === $cutoff ) {
 			return array( '1=0', array() );
@@ -752,6 +779,15 @@ class Wp_Core_Active_Since_Filter extends Filter {
 	}
 
 	/**
+	 * A usable cutoff is required.
+	 *
+	 * @param array<string,mixed> $args Operator-supplied arguments.
+	 */
+	public function get_argument_error( array $args ): string {
+		return '' === hwpua_resolve_cutoff( $args ) ? __( 'give a number of days or a date.', 'purge-user-accounts' ) : '';
+	}
+
+	/**
 	 * Matches when the user has a record newer than the cutoff.
 	 *
 	 * @param array<string,mixed> $args   `days_ago` or `date`, plus optional
@@ -770,14 +806,7 @@ class Wp_Core_Active_Since_Filter extends Filter {
 			return array( '1=0', array() );
 		}
 
-		$cutoff = '';
-
-		if ( isset( $args['days_ago'] ) && is_numeric( $args['days_ago'] ) ) {
-			$cutoff = gmdate( 'Y-m-d H:i:s', time() - ( (int) $args['days_ago'] * DAY_IN_SECONDS ) );
-		} elseif ( isset( $args['date'] ) && is_string( $args['date'] ) ) {
-			$parsed = strtotime( $args['date'] . ' UTC' );
-			$cutoff = false === $parsed ? '' : gmdate( 'Y-m-d H:i:s', $parsed );
-		}
+		$cutoff = hwpua_resolve_cutoff( $args );
 
 		if ( '' === $cutoff ) {
 			return array( '1=0', array() );

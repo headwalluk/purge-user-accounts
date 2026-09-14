@@ -68,9 +68,9 @@ in an integration.
 A filter contributes in exactly one of three ways:
 
 ```php
-get_predicate( array $args ): array        // preferred - folded into the seed statement
-get_scratch_query( int $run_id ): array    // when the target table lacks a user_id index
-evaluate_chunk( array $rows, array $args ): array   // IDs to DROP; receives a CHUNK
+get_predicate( array $args, int $run_id ): array        // preferred - folded into the seed statement
+get_scratch_queries( int $run_id, array $args ): array  // fills a scratch bucket the predicate joins
+evaluate_chunk( array $rows, array $args ): array       // IDs to DROP; receives a CHUNK
 ```
 
 **There is no `evaluate_user()`, and none may be added.** Per-user iteration hydrates rows
@@ -78,7 +78,13 @@ at 52 MB per 100,000 (measured) and issues N queries per integration, forfeiting
 `INSERT ... SELECT` seed the whole memory design rests on. See
 `dev-notes/12-integration-framework.md` §3.
 
-Filter and action IDs are namespaced by integration: `woocommerce.never-purchased`.
+Filter IDs are namespaced by integration and name the positive condition, so `has_not`
+reads naturally: `woocommerce.orders`. Core action IDs are bare: `block-signin`, `delete`.
+
+A filter whose arguments cannot express a usable criterion returns a reason from
+`get_argument_error()`, and the run is refused. Never return a match-nothing predicate
+instead: `has_not` inverts it into match-everyone. A filter with `supports_sense()` false
+is always applied as `has`.
 
 ### Runs and jobs
 

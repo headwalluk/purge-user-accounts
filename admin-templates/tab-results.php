@@ -32,7 +32,7 @@ if ( ! $hwpua_run->is_complete() ) {
 	printf(
 		'<div class="notice notice-warning"><p><strong>%s</strong> %s</p></div>',
 		esc_html__( 'This query did not finish.', 'purge-user-accounts' ),
-		esc_html( '' === $hwpua_run->get_failure_reason() ? __( 'It can be resumed from the History tab.', 'purge-user-accounts' ) : $hwpua_run->get_failure_reason() )
+		esc_html( '' === $hwpua_run->get_failure_reason() ? __( 'Run it again from the Build tab.', 'purge-user-accounts' ) : $hwpua_run->get_failure_reason() )
 	);
 	return;
 }
@@ -157,7 +157,7 @@ printf( '<h3>%s</h3>', esc_html__( 'Act on this result', 'purge-user-accounts' )
 
 printf(
 	'<p class="hwpua-muted">%s</p>',
-	esc_html__( 'Least drastic first. Everything above "Block sign-in" can be undone; nothing below it can.', 'purge-user-accounts' )
+	esc_html__( 'Least drastic first. Each action is marked reversible or permanent.', 'purge-user-accounts' )
 );
 
 echo '<ul class="hwpua-ladder">';
@@ -188,7 +188,7 @@ echo '</ul>';
 printf(
 	'<div class="hwpua-action-args" id="hwpua-args-delete" hidden>
 		<p><strong>%s</strong></p>
-		<label><input type="radio" name="hwpua-reassign" value="%d" checked> %s</label><br>
+		<label><input type="radio" name="hwpua-reassign" value="%d"> %s</label><br>
 		<label><input type="radio" name="hwpua-reassign" value="0"> %s</label>
 	</div>',
 	esc_html__( 'What should happen to any content these accounts authored?', 'purge-user-accounts' ),
@@ -216,7 +216,7 @@ printf(
 		<p id="hwpua-job-text"></p>
 		<p class="hwpua-muted">%s</p>
 	</div>',
-	esc_html__( 'Safe to close this tab. The job pauses and can be resumed.', 'purge-user-accounts' )
+	esc_html__( 'Closing this tab pauses the job. It can be resumed with WP-CLI: wp purge-users resume.', 'purge-user-accounts' )
 );
 
 echo '</div>';

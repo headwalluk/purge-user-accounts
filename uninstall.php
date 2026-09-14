@@ -27,9 +27,12 @@ $hwpua_option_names = array(
 	Purge_User_Accounts\OPT_EXPORT_DIR_ERROR,
 	Purge_User_Accounts\OPT_DOMAIN_ALLOWLIST,
 	Purge_User_Accounts\OPT_DISABLED_RULES,
+	Purge_User_Accounts\OPT_ENABLED_RULES,
 	Purge_User_Accounts\OPT_CUSTOM_RULES,
 	Purge_User_Accounts\OPT_PRESETS,
 	Purge_User_Accounts\OPT_LAST_LOGIN_SOURCE,
+	Purge_User_Accounts\OPT_FIXTURE_CREATED,
+	Purge_User_Accounts\OPT_FIXTURE_COHORTS,
 );
 
 foreach ( $hwpua_option_names as $hwpua_option_name ) {

@@ -454,6 +454,14 @@ class Cli_Operator {
 			return;
 		}
 
+		if ( JOB_STATUS_CANCELLED === $job->get_status() ) {
+			try {
+				$job->update( array( 'status' => JOB_STATUS_RUNNING ) );
+			} catch ( Run_Exception $caught_error ) {
+				\WP_CLI::error( $caught_error->getMessage() );
+			}
+		}
+
 		self::drive_job( $job, ! empty( $job->get_args()['dry_run'] ) );
 	}
 
@@ -476,6 +484,11 @@ class Cli_Operator {
 
 		if ( null === $job ) {
 			\WP_CLI::error( 'No such job.' );
+		}
+
+		if ( $job->is_finished() ) {
+			\WP_CLI::success( 'That job has already finished.' );
+			return;
 		}
 
 		$job->cancel();
@@ -536,6 +549,11 @@ class Cli_Operator {
 					number_format_i18n( (int) $progress['failed'] )
 				)
 			);
+		}
+
+		if ( ! empty( $progress['stopped'] ) ) {
+			\WP_CLI::warning( sprintf( 'Job #%d was stopped before it finished. Resume with: wp purge-users resume %d', $job_id, $job_id ) );
+			return;
 		}
 
 		if ( $is_dry_run ) {

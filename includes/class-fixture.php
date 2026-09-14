@@ -134,8 +134,8 @@ class Fixture {
 		self::speed_up_generation();
 
 		$settings      = new Settings();
-		$already_made  = $settings->get_int( 'hwpua_fixture_created', 0 );
-		$cohort_counts = $settings->get_array( 'hwpua_fixture_cohorts', array() );
+		$already_made  = $settings->get_int( OPT_FIXTURE_CREATED, 0 );
+		$cohort_counts = $settings->get_array( OPT_FIXTURE_COHORTS, array() );
 
 		while ( $already_made < $target_total ) {
 			$batch_end = min( $target_total, $already_made + $batch_size );
@@ -150,8 +150,8 @@ class Fixture {
 			}
 
 			$already_made = $batch_end;
-			$settings->set_int( 'hwpua_fixture_created', $already_made );
-			$settings->set_array( 'hwpua_fixture_cohorts', $cohort_counts );
+			$settings->set_int( OPT_FIXTURE_CREATED, $already_made );
+			$settings->set_array( OPT_FIXTURE_COHORTS, $cohort_counts );
 
 			if ( null !== $on_batch ) {
 				call_user_func( $on_batch, $already_made, $target_total );
@@ -170,7 +170,7 @@ class Fixture {
 		global $wpdb;
 
 		$settings  = new Settings();
-		$requested = $settings->get_int( 'hwpua_fixture_created', 0 );
+		$requested = $settings->get_int( OPT_FIXTURE_CREATED, 0 );
 		$actual    = (int) $wpdb->get_var(
 			$wpdb->prepare(
 				"SELECT COUNT(*) FROM {$wpdb->usermeta} WHERE meta_key = %s",
@@ -451,8 +451,8 @@ class Fixture {
 			}
 		}
 
-		delete_option( 'hwpua_fixture_created' );
-		delete_option( 'hwpua_fixture_cohorts' );
+		delete_option( OPT_FIXTURE_CREATED );
+		delete_option( OPT_FIXTURE_COHORTS );
 
 		return $removed_total;
 	}

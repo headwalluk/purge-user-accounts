@@ -99,7 +99,7 @@ class Admin_Page {
 					'estimating'    => __( 'Counting…', 'purge-user-accounts' ),
 					'failed'        => __( 'The query stopped. Nothing was changed.', 'purge-user-accounts' ),
 					'retrying'      => __( 'Connection lost — retrying…', 'purge-user-accounts' ),
-					'safeToClose'   => __( 'Safe to close this tab. Progress is saved and can be resumed.', 'purge-user-accounts' ),
+					'safeToClose'   => __( 'Closing this tab stops here. Nothing already done is lost.', 'purge-user-accounts' ),
 					'nameThis'      => __( 'Name this query', 'purge-user-accounts' ),
 					'nothingTicked' => __( 'Tick some criteria first.', 'purge-user-accounts' ),
 					'confirmForget' => __( 'Forget this saved query? Runs already made from it are unaffected.', 'purge-user-accounts' ),
