@@ -123,7 +123,9 @@ foreach ( $hwpua_all_rules as $hwpua_rule ) {
 		esc_html( $hwpua_rule['pattern'] )
 	);
 
-	if ( ! $hwpua_is_enabled ) {
+	// Only rules the site disabled explicitly; a default-off rule is not written here,
+	// or saving this form would turn its default into an override.
+	if ( in_array( $hwpua_rule['key'], $hwpua_disabled, true ) ) {
 		printf( '<input type="hidden" name="hwpua_disabled_rules[]" value="%s">', esc_attr( $hwpua_rule['key'] ) );
 	}
 }

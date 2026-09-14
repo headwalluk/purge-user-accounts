@@ -44,7 +44,7 @@ foreach ( $hwpua_help_sections as $hwpua_section ) {
 $hwpua_help_notes = array(
 	__( 'Last-login data', 'purge-user-accounts' )       => __( 'A login source only knows about sign-ins since it started recording. An account older than that is Unknown, not Never, and the safe variant of each login criterion leaves Unknown accounts out. Check the coverage panel on the Build tab before relying on login history.', 'purge-user-accounts' ),
 	__( 'Bad-signup rules', 'purge-user-accounts' )      => __( 'The bundled rules are a record of signup campaigns already seen, not a general theory of bot accounts. A site facing an unfamiliar campaign will need its own rules. Rules known to catch real people ship switched off, and the email domain allowlist on the Settings tab exempts domains you trust.', 'purge-user-accounts' ),
-	__( 'What cannot be undone', 'purge-user-accounts' ) => __( 'Deleting accounts, scrambling passwords and revoking application passwords are permanent. Blocking sign-in and stripping roles are reversed with "Unblock sign-in" and "Restore roles".', 'purge-user-accounts' ),
+	__( 'What cannot be undone', 'purge-user-accounts' ) => __( 'Deleting accounts, scrambling passwords and revoking application passwords are permanent. Blocking sign-in and stripping roles are reversed with "Allow sign-in again" and "Restore stripped roles".', 'purge-user-accounts' ),
 	__( 'Administrators and yourself', 'purge-user-accounts' ) => __( 'Your own account and the last administrator are never acted on, and other accounts that can manage users are skipped. These checks are repeated when an action runs, not only when the query is built.', 'purge-user-accounts' ),
 );
 
